@@ -1,183 +1,242 @@
-Performance Analysis of Virtualization: Type-1 (Proxmox VE) vs Type-2 (VMware Workstation) Hypervisors
 
-Overview:
-This laboratory experiment evaluates and compares the performance characteristics of Type-1 (bare-metal) and Type-2 (hosted) hypervisors. Proxmox VE is deployed as the Type-1 hypervisor running directly on physical hardware, while VMware Workstation serves as the Type-2 hypervisor running on top of a host operating system. Virtual machines running Ubuntu are configured on both platforms with identical CPU allocations, and their processing performance is benchmarked using Sysbench.
+# Performance Evaluation of Type-1 and Type-2 Hypervisors: Proxmox VE vs VMware Workstation
+
+## Overview
+
+This laboratory experiment examines the performance of two virtualization approaches: Type-1 (bare-metal) and Type-2 (hosted) hypervisors. Proxmox VE is used as the Type-1 hypervisor, installed directly on physical hardware, while VMware Workstation is used as the Type-2 hypervisor, operating on a host operating system. Ubuntu virtual machines are created on both platforms with specified CPU resources, and Sysbench is used to measure and compare their CPU performance.
 
 ---
 
-PART A: Performance Analysis Using Type-1 Hypervisor – Proxmox VE
+# PART A: Performance Evaluation Using Type-1 Hypervisor – Proxmox VE
 
-1. Virtual Machine Specifications (Type-1)
+## 1. Virtual Machine Configuration
 
 | Parameter | Configuration |
-| :--- | :--- |
+|---|---|
 | Hypervisor | Proxmox VE |
-| Hypervisor Type | Type-1 |
+| Hypervisor Type | Type-1 (Bare-metal) |
 | Node | Selected Proxmox Node (pve) |
 | VM Name | CC-Experiment1-Type1 |
-| Guest Operating System | Linux (Ubuntu 64-bit) |
+| Guest Operating System | Ubuntu Linux (64-bit) |
 | ISO Image | ubuntu-22.04.iso |
-| CPU Allocation | 2 vCPU (1 Socket, 2 Cores) |
+| CPU Allocation | 2 vCPUs (1 Socket, 2 Cores) |
 | Memory Allocation | 2048 MiB (2 GB RAM) |
 | Disk Storage | 20 GB (local-lvm) |
 | Network Bridge | vmbr0 (VirtIO) |
 
-2. System Verification (Type-1)
+## 2. System Resource Verification
 
-Hostname and OS Verification:
-Command: hostnamectl
+The following commands are executed inside the Ubuntu VM to check its system configuration and resource utilization.
 
-CPU Configuration Verification:
-Command: lscpu
+### 2.1 Hostname and OS Verification
 
-Memory Configuration Verification:
-Command: free -h
+```bash
+hostnamectl
+```
 
-Disk Storage Verification:
-Command: df -h
+### 2.2 CPU Configuration
 
-Real-Time System Monitoring:
-Command: top
+```bash
+lscpu
+```
 
-3. CPU Performance Benchmark (Type-1)
+### 2.3 Memory Status
 
-Sysbench Execution Command:
+```bash
+free -h
+```
+
+### 2.4 Disk Space
+
+```bash
+df -h
+```
+
+### 2.5 Live Resource Monitoring
+
+```bash
+top
+```
+
+## 3. CPU Benchmark Using Sysbench
+
+**Execution command:**
+
+```bash
 sysbench cpu --cpu-max-prime=20000 run
+```
 
+## 4. Observation Table – Type-1
 
-4. Observation Table (Type-1 Hypervisor)
-
-| Parameter / Metric | Observation / Result |
-| :--- | :--- |
+| Parameter | Observed Result |
+|---|---|
 | Hypervisor | Proxmox VE |
 | Hypervisor Type | Type-1 |
-| Guest Operating System | Ubuntu |
-| CPU Allocation | 2 vCPU |
+| Guest OS | Ubuntu |
+| CPU Allocation | 2 vCPUs |
 | Memory Allocation | 2 GB |
 | Disk Allocation | 20 GB |
-| Total Execution Time | 10.0006s |
-| Total Events | 16903 |
+| Total Execution Time | 10.0006 s |
+| Total Events | 16,903 |
 | Events per Second | 1689.43 |
 | Minimum Latency | 0.57 ms |
 | Average Latency | 0.59 ms |
 | Maximum Latency | 1.09 ms |
 
-5. Workflow Summary (Type-1)
+## 5. Experimental Procedure – Type-1
 
-Connect to the designated network and open the Proxmox VE web interface at https://<PROXMOX_SERVER_IP>:8006
-Log in using the authorized credentials and realm
-Select Datacenter -> pve and launch the Create VM wizard
-Configure VM settings: General, OS (Ubuntu ISO), System, Disk (20 GB), CPU (2 vCPUs), Memory (2048 MiB), and Network (vmbr0)
-Review and finalize configuration to instantiate the VM
-Start the virtual machine and launch the noVNC Console
-Complete Ubuntu OS setup and reboot the VM
-Log in via terminal and verify system architecture with hostnamectl, lscpu, free -h, and df -h
-Install the Sysbench benchmarking utility
-Execute the CPU benchmark (sysbench cpu --cpu-max-prime=20000 run)
-Record performance statistics in the observation table
-Monitor hypervisor-level metrics from the Proxmox summary dashboard and gracefully power off the VM
+1. Connect to the required network and access the Proxmox VE interface at `https://<PROXMOX_SERVER_IP>:8006`.
+2. Authenticate using the provided credentials and select the appropriate realm.
+3. Navigate to **Datacenter → pve** and open the Create VM wizard.
+4. Specify the Ubuntu ISO, system settings, 20 GB disk, 2 vCPUs, 2048 MiB RAM, and vmbr0 network bridge.
+5. Review the selected parameters and create the virtual machine.
+6. Start the VM and access the noVNC console.
+7. Install Ubuntu and restart the virtual machine.
+8. Verify the system details using `hostnamectl`, `lscpu`, `free -h`, and `df -h`.
+9. Install Sysbench and run the CPU benchmark with the specified prime limit.
+10. Record the results and observe resource utilization from the Proxmox dashboard.
+11. Shut down the VM safely after the experiment.
 
 ---
 
-PART B: Performance Analysis Using Type-2 Hypervisor – VMware Workstation
+# PART B: Performance Evaluation Using Type-2 Hypervisor – VMware Workstation
 
-1. Virtual Machine Specifications (Type-2)
+## 1. Virtual Machine Configuration
 
 | Parameter | Configuration |
-| :--- | :--- |
+|---|---|
 | Hypervisor | VMware Workstation |
-| Hypervisor Type | Type-2 |
+| Hypervisor Type | Type-2 (Hosted) |
 | VM Name | CC-Experiment1-Type2 |
-| Guest Operating System | Linux (Ubuntu 64-bit) |
+| Guest Operating System | Ubuntu Linux (64-bit) |
 | ISO Image | ubuntu-22.04.iso |
-| CPU Allocation | 2 vCPU (1 Processor, 2 Cores) |
+| CPU Allocation | 2 vCPUs (1 Processor, 2 Cores) |
 | Memory Allocation | 8 GB (8192 MB) |
 | Disk Storage | 20 GB (Single disk) |
 | Network Adapter | NAT |
 
-2. System Verification (Type-2)
+## 2. System Resource Verification
 
-Hostname and OS Verification:
-Command: hostnamectl
+The following commands are used to inspect the Ubuntu virtual machine running on VMware Workstation.
 
-CPU Configuration Verification:
-Command: lscpu
+### 2.1 Hostname and OS Verification
 
-Memory Configuration Verification:
-Command: free -h
+```bash
+hostnamectl
+```
 
-Disk Storage Verification:
-Command: df -h
+### 2.2 CPU Configuration
 
-Real-Time System Monitoring:
-Command: top
+```bash
+lscpu
+```
 
-3. CPU Performance Benchmark (Type-2)
+### 2.3 Memory Status
 
-Sysbench Execution Command:
+```bash
+free -h
+```
+
+### 2.4 Disk Space
+
+```bash
+df -h
+```
+
+### 2.5 Live Resource Monitoring
+
+```bash
+top
+```
+
+## 3. CPU Benchmark Using Sysbench
+
+**Execution command:**
+
+```bash
 sysbench cpu --cpu-max-prime=20000 run
+```
 
+## 4. Observation Table – Type-2
 
-4. Observation Table (Type-2 Hypervisor)
-
-| Parameter / Metric | Observation / Result |
-| :--- | :--- |
+| Parameter | Observed Result |
+|---|---|
 | Hypervisor | VMware Workstation |
 | Hypervisor Type | Type-2 |
-| Guest Operating System | Ubuntu |
-| CPU Allocation | 2 vCPU |
+| Guest OS | Ubuntu |
+| CPU Allocation | 2 vCPUs |
 | Memory Allocation | 8 GB |
 | Disk Allocation | 20 GB |
-| Total Execution Time | 10.0003s |
-| Total Events | 17588 |
+| Total Execution Time | 10.0003 s |
+| Total Events | 17,588 |
 | Events per Second | 1758.60 |
 | Minimum Latency | 0.55 ms |
 | Average Latency | 0.57 ms |
 | Maximum Latency | 1.11 ms |
 
-5. Workflow Summary (Type-2)
+## 5. Experimental Procedure – Type-2
 
-Launch VMware Workstation
-Create a New Virtual Machine (Typical configuration)
-Select Ubuntu ISO installer
-Configure VM Name (CC-Experiment1-Type2) and location
-Configure 20 GB virtual disk
-Customize Hardware (2 vCPU, 8 GB RAM, NAT network)
-Power on VM and install Ubuntu
-Verify configuration using hostnamectl, lscpu, free -h, and df -h
-Install Sysbench utility
-Run CPU benchmark with prime limit 20000
-Record observation metrics in tables
-Shut down virtual machine using sudo poweroff
+1. Launch VMware Workstation on the host system.
+2. Select **Create a New Virtual Machine** and choose the Typical configuration.
+3. Load the Ubuntu ISO installer.
+4. Set the VM name to `CC-Experiment1-Type2` and choose the storage location.
+5. Configure the virtual disk with a capacity of 20 GB.
+6. Allocate 2 vCPUs, 8 GB RAM, and configure the network adapter to NAT.
+7. Power on the VM and complete the Ubuntu installation.
+8. Verify the system configuration using `hostnamectl`, `lscpu`, `free -h`, and `df -h`.
+9. Install Sysbench and execute the CPU benchmark with a prime limit of 20000.
+10. Record the benchmark measurements and shut down the VM using:
+
+```bash
+sudo poweroff
+```
 
 ---
 
-PART C: Comparative Performance Analysis (Type-1 vs Type-2)
+# PART C: Comparative Performance Analysis
 
-1. Side-by-Side Benchmark Comparison Table
+## 1. Benchmark Comparison – Type-1 vs Type-2
 
-| Metric / Parameter | Type-1 Hypervisor (Proxmox VE) | Type-2 Hypervisor (VMware Workstation) |
-| :--- | :--- | :--- |
-| Architecture Level | Bare-Metal (Direct hardware access) | Hosted (Runs on host OS) |
-| vCPU Allocation | 2 vCPU | 2 vCPU |
+| Metric | Type-1: Proxmox VE | Type-2: VMware Workstation |
+|---|---|---|
+| Virtualization Architecture | Bare-metal | Hosted |
+| vCPU Allocation | 2 vCPUs | 2 vCPUs |
 | Memory Allocation | 2 GB | 8 GB |
 | Disk Allocation | 20 GB | 20 GB |
-| Benchmark Test | Sysbench CPU (Max Prime: 20000) | Sysbench CPU (Max Prime: 20000) |
-| Total Execution Time | 10.0006s | 10.0003s |
-| Total Number of Events | 16903 | 17588 |
+| Benchmark | Sysbench CPU (Prime: 20000) | Sysbench CPU (Prime: 20000) |
+| Total Execution Time | 10.0006 s | 10.0003 s |
+| Total Events | 16,903 | 17,588 |
 | Events per Second | 1689.43 | 1758.60 |
 | Minimum Latency | 0.57 ms | 0.55 ms |
 | Average Latency | 0.59 ms | 0.57 ms |
 | Maximum Latency | 1.09 ms | 1.11 ms |
 
-2. Performance Inferences & Analysis
+## 2. Performance Observations and Analysis
 
-Throughput and Execution Capacity:
-VMware Workstation processed 17,588 total events at a rate of 1758.60 events/second, whereas Proxmox VE completed 16,903 total events at 1689.43 events/second[cite: 1, 2]. The difference in event throughput reflects variation in memory overhead allocation (8 GB allocated to VMware VM vs 2 GB to Proxmox VM) alongside differences in the underlying host physical processor specifications.
+### Throughput and Processing Performance
 
-Latency Characteristics:
-Both hypervisors maintained sub-millisecond execution times[cite: 1, 2]. Proxmox VE exhibited an average latency of 0.59 ms (ranging between 0.57 ms and 1.09 ms)[cite: 2], while VMware Workstation delivered an average latency of 0.57 ms (ranging between 0.55 ms and 1.11 ms)[cite: 1]. Proxmox VE demonstrated a tighter maximum latency ceiling (1.09 ms vs 1.11 ms)[cite: 1, 2], reflecting bare-metal scheduling stability without host OS interrupt interference.
+The Sysbench benchmark recorded 16,903 events at 1689.43 events per second for Proxmox VE, while VMware Workstation recorded 17,588 events at 1758.60 events per second. These measurements represent the results obtained under the respective VM configurations. The difference may be associated with variations in allocated memory, host hardware, and virtualization overhead.
 
-Architectural Trade-offs:
-Type-1 Hypervisor (Proxmox VE) operates directly on bare metal without an intermediary OS layer, minimizing resource contention, eliminating host OS overhead, and providing predictable enterprise virtualization.
-Type-2 Hypervisor (VMware Workstation) operates on top of a general-purpose host OS, which provides setup convenience and flexible desktop integration, but shares physical compute resources with host-level processes.
+### Latency Comparison
+
+Both virtual machines recorded average benchmark latencies below 1 ms. Proxmox VE reported an average latency of 0.59 ms, with a minimum of 0.57 ms and a maximum of 1.09 ms. VMware Workstation recorded an average latency of 0.57 ms, with a minimum of 0.55 ms and a maximum of 1.11 ms.
+
+The observed latency values indicate small differences in benchmark response times under the tested conditions. These results alone do not establish the overall scheduling stability or performance of either hypervisor.
+
+### Architectural Differences
+
+**Type-1 Hypervisor – Proxmox VE:**
+
+- Runs directly on the physical hardware without requiring a general-purpose host OS underneath.
+- Provides centralized management of virtual machines and host resources.
+- Is commonly used in server and data-center virtualization environments.
+
+**Type-2 Hypervisor – VMware Workstation:**
+
+- Operates as an application on a host operating system.
+- Supports desktop-based virtualization and convenient integration with the host environment.
+- Shares the physical system's resources with the host OS and other running applications.
+
+### Conclusion
+
+The experiment involved deploying Ubuntu virtual machines on Proxmox VE and VMware Workstation and measuring their CPU performance using Sysbench. The collected results show differences in event throughput and latency between the two configurations. Since the memory allocations and execution environments differ, the measurements should be interpreted as a comparison of the tested setups rather than a definitive performance ranking of the hypervisor architectures.
